@@ -40,7 +40,7 @@ networks:
 
 secrets:
   github_key:
-    file: ~/.ssh/id_github  # Ruta al archivo que contiene la clave SSH para GitHub (ajusta según tu entorno)
+    file: ~/.ssh/id_ed25519  # Ruta al archivo que contiene la clave SSH para GitHub (ajusta según tu entorno)
 
 # Notas adicionales:
 # - ${VAR:-default} -> usa 'default' si VAR está unset o vacío.
