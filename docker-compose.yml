@@ -7,6 +7,8 @@ services:
       context: ./frontend   # Carpeta que contiene Dockerfile y código fuente
       args:
         MODE: ${MODE:-development}  # ARG pasado al Dockerfile; por defecto 'development'
+        USER_UID: ${UID:-1000}      # Hace coincidir el UID del contenedor con el usuario del host para el bind mount
+        USER_GID: ${GID:-1000}      # Hace coincidir el GID del contenedor con el grupo del host para el bind mount
     image: frontend:latest  # Nombre:etiqueta de la imagen resultante
 
     secrets:
@@ -18,6 +20,8 @@ services:
 
     # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
     environment:
+      - APP_REPO=${APP_REPO:-git@github.com:MartinSIbarra/frontend.git}
+                                                # URL del repositorio Git de la app (por defecto apunta a un repo de ejemplo)
       - MODE=${MODE:-development}               # Indica modo lógico (dev/prod)
       - NODE_ENV=${NODE_ENV:-development}       # Convención Node; afecta librerías
       - PORT=${FRONTEND_PORT:-5173}             # Puerto que la app escucha dentro del contenedor
@@ -25,7 +29,7 @@ services:
 
     # Volúmenes: en desarrollo montamos el código para hot-reload
     volumes:
-      - ./frontend:/home/app/frontend      # Monta la carpeta local en /frontend del contenedor (edita localmente)
+      - ./frontend/app:/home/frontend/app      # Monta la carpeta local en /frontend del contenedor (edita localmente)
     #   - /app/node_modules    # Volumen anónimo para evitar sobrescribir node_modules del contenedor
 
     # Redes a las que se conecta este servicio
@@ -44,6 +48,8 @@ secrets:
 
 # Notas adicionales:
 # - ${VAR:-default} -> usa 'default' si VAR está unset o vacío.
+# - Para acceso completo de lectura/escritura sobre volúmenes bind-mounted en Linux,
+#   conviene exportar UID/GID del usuario host antes de construir/levantar: `export UID=$(id -u) GID=$(id -g)`.
 # - 'depends_on' controla orden de arranque, pero no espera checks de salud. Para esperar salud,
 #   añade 'healthcheck' al servicio backend y lógica de espera en frontend.
 # - En producción es recomendable eliminar el volumen './frontend:/app' y construir
