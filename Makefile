@@ -3,9 +3,26 @@
 HOST_UID ?= $(shell id -u)
 HOST_GID ?= $(shell id -g)
 
-.PHONY: up down it rmi ps prepare help
+.PHONY: up down it rmi ps prepare help delapp
 
 .ONESHELL:
+
+# Muestra ayuda rápida
+help:
+	@echo "Targets: help up prepare down ps it rmi delapp"
+
+
+# exporta las variables para desarrollo
+exdev:
+	export FRONTEND_PORT=5173
+	export FRONTEND_HPORT=5173
+	export MODE=development
+
+# exporta las variables para producción
+exprod:
+	export FRONTEND_PORT=5173
+	export FRONTEND_HPORT=5173
+	export MODE=production
 
 # Muestra el estado de los servicios
 ps:
@@ -29,10 +46,10 @@ down:
 it:
 	@docker compose exec frontend bash || docker compose exec frontend sh
 
-# Muestra ayuda rápida
-help:
-	@echo "Targets: up prepare down ps it rmi help"
-
 # Elimina la imagen 'frontend:latest' construida localmente (no hace prune)
 rmi:
 	docker image rm frontend:latest || true
+
+# Elimina la carpeta de la aplicación frontend (útil para limpiar el entorno)
+delapp:
+	rm -rf ./frontend/app

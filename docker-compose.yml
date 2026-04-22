@@ -16,14 +16,13 @@ services:
 
     # Mapeo de puertos host:contenedor (puedes sobreescribir FRONTEND_PORT)
     ports:
-      - "${FRONTEND_PORT:-5173}:5173"  # Si FRONTEND_PORT no está definido usa 5173
+      - "${FRONTEND_PORT:-5173}:${FRONTEND_HPORT:-5173}" # Si FRONTEND_PORT no está definido usa 5173
 
     # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
     environment:
       - APP_REPO=${APP_REPO:-git@github.com:MartinSIbarra/frontend.git}
                                                 # URL del repositorio Git de la app (por defecto apunta a un repo de ejemplo)
       - MODE=${MODE:-development}               # Indica modo lógico (dev/prod)
-      - NODE_ENV=${NODE_ENV:-development}       # Convención Node; afecta librerías
       - PORT=${FRONTEND_PORT:-5173}             # Puerto que la app escucha dentro del contenedor
       - API_URL=${API_URL:-http://backend:8000} # URL base de la API (por defecto apunta a 'backend')
 
@@ -44,7 +43,8 @@ networks:
 
 secrets:
   github_key:
-    file: ~/.ssh/id_ed25519  # Ruta al archivo que contiene la clave SSH para GitHub (ajusta según tu entorno)
+    # Ruta al archivo que contiene la clave SSH para GitHub (ajusta según tu entorno)
+    file: ${SSH_KEY_PATH:-$HOME/.ssh/id_ed25519}  
 
 # Notas adicionales:
 # - ${VAR:-default} -> usa 'default' si VAR está unset o vacío.
