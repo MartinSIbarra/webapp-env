@@ -1,5 +1,6 @@
-# Makefile para gestionar el entorno docker-compose
+SHELL := /bin/bash
 
+# Makefile para gestionar el entorno docker-compose
 HOST_UID ?= $(shell id -u)
 HOST_GID ?= $(shell id -g)
 
@@ -10,19 +11,6 @@ HOST_GID ?= $(shell id -g)
 # Muestra ayuda rápida
 help:
 	@echo "Targets: help up prepare down ps it rmi delapp"
-
-
-# exporta las variables para desarrollo
-exdev:
-	export FRONTEND_PORT=5173
-	export FRONTEND_HPORT=5173
-	export MODE=development
-
-# exporta las variables para producción
-exprod:
-	export FRONTEND_PORT=5173
-	export FRONTEND_HPORT=5173
-	export MODE=production
 
 # Muestra el estado de los servicios
 ps:
@@ -41,6 +29,9 @@ up: prepare
 # Baja los servicios y remueve contenedores creados
 down:
 	docker compose down
+
+# Reinicia los servicios
+restart: down rmi up
 
 # Abre una shell interactiva en el servicio frontend (usa /bin/bash si está disponible)
 it:

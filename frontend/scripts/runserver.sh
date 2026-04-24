@@ -23,8 +23,8 @@ if [ "$MODE" = "production" ]; then
   # Sirve los archivos construidos en modo 'preview' (útil para poner la app en marcha
   # dentro del contenedor). `--host 0.0.0.0` hace que el servidor acepte conexiones
   # desde fuera del contenedor (necesario para acceder desde el host). `--port` usa `PORT`.
-  bun x serve dist -p "$PORT" &
-else
+  exec bun x serve dist -p "$PORT" 2>&1 | tee -a "$HOME/app/frontend/server.log"
+else # $MODE = "development"
   echo "[entrypoint] development mode: installing deps and starting dev server"
 
   # Instala todas las dependencias (incluye devDependencies) para permitir hot-reload
@@ -33,7 +33,9 @@ else
 
   # Arranca el servidor de desarrollo de Vite/Bun, exponiendo host/port adecuados.
   # `--host 0.0.0.0` permite que Vite sea accesible desde el host (y desde otros contenedores si se enlazan).
-  bun run dev --host 0.0.0.0 --port "$PORT" &
+  export DEBUG='vite:*,app:*'
+  exec bun run dev --host 0.0.0.0 --port "$PORT" 2>&1 | tee -a "$HOME/app/frontend/server.log"
+   
 fi
 
 # Variables clave usadas:

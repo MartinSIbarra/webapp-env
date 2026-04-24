@@ -6,9 +6,11 @@ services:
     build:
       context: ./frontend   # Carpeta que contiene Dockerfile y código fuente
       args:
-        MODE: ${MODE:-development}  # ARG pasado al Dockerfile; por defecto 'development'
-        USER_UID: ${UID:-1000}      # Hace coincidir el UID del contenedor con el usuario del host para el bind mount
-        USER_GID: ${GID:-1000}      # Hace coincidir el GID del contenedor con el grupo del host para el bind mount
+        MODE: ${MODE:-development}             # ARG pasado al Dockerfile; por defecto 'development'
+        USER_UID: ${UID:-1000}                 # Hace coincidir el UID del contenedor con el usuario del host para el bind mount
+        USER_GID: ${GID:-1000}                 # Hace coincidir el GID del contenedor con el grupo del host para el bind mount
+        USERNAME: ${USERNAME:-frontend}        # Usuario no-root para ejecutar la app dentro del contenedor
+        GROUPNAME: ${GROUPNAME:-frontendgroup} # Grupo para el usuario no-root dentro
     image: frontend:latest  # Nombre:etiqueta de la imagen resultante
 
     secrets:
@@ -24,7 +26,11 @@ services:
                                                 # URL del repositorio Git de la app (por defecto apunta a un repo de ejemplo)
       - MODE=${MODE:-development}               # Indica modo lógico (dev/prod)
       - PORT=${FRONTEND_PORT:-5173}             # Puerto que la app escucha dentro del contenedor
+      - LOGSIZE=${LOGSIZE:-10M}                 # Tamaño máximo de los logs antes de rotar (usado por logrotate)
+      - LOGCOUNT=${LOGCOUNT:-5}                 # Número de archivos de log rotados a mantener (usado por logrotate)
       - API_URL=${API_URL:-http://backend:8000} # URL base de la API (por defecto apunta a 'backend')
+      - USERNAME=${USERNAME:-frontend}          # Usuario no-root para ejecutar la app y gestionar archivos
+      - GROUPNAME=${GROUPNAME:-frontendgroup}   # Grupo para el usuario no-root
 
     # Volúmenes: en desarrollo montamos el código para hot-reload
     volumes:

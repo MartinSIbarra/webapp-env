@@ -1,0 +1,9 @@
+$APP_PATH/server.log {
+    size $LOGSIZE
+    rotate $LOGCOUNT
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}
