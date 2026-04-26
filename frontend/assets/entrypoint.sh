@@ -35,17 +35,17 @@ export LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL:-60}
 envsubst < /usr/local/templates/bashrc.template | tee $HOME/.bashrc > /dev/null
 
 # Inicia el proceso de logrotate en segundo plano para gestionar los logs de la aplicación.
-source logrotate-schedule.sh "$REPO_NAME" "$LOGROTATE_INTERVAL" &
+logrotate-schedule.sh "$REPO_NAME" "$LOGROTATE_INTERVAL" &
 
 # Preparar el entorno SSH
 mkdir -p ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 # Actualiza o clona la app desde el repositorio Git usando SSH.
-source updateapp.sh "$APP_REPO" "$APP_PATH"
+updateapp.sh "$APP_REPO" "$APP_PATH"
 
 # Arranca el servidor de desarrollo o producción según el modo configurado.
-source runserver.sh "$APP_PATH" "$PORT" "$MODE"
+runserver.sh "$APP_PATH" "$PORT" "$MODE" &
 
 # Mantiene el contenedor vivo después de que el servidor se detenga (útil para debugging).
 tail -f /dev/null  

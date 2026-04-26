@@ -18,6 +18,9 @@ ps:
 
 # Levanta los servicios en background reconstruyendo la imagen
 up:
+	set -a
+	source ./frontend.env
+	set +a
 	docker compose up --build -d
 	docker compose ps
 
@@ -27,6 +30,9 @@ down:
 
 # Reinicia los servicios
 restart: down rmi up
+
+# Recarga el servidor
+reload: down up
 
 # Abre una shell interactiva en el servicio frontend (usa /bin/bash si está disponible)
 it:

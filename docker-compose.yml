@@ -12,26 +12,17 @@ services:
         GROUPNAME: ${GROUPNAME:-frontendgroup} # Grupo para el usuario no-root dentro
     image: frontend:latest                     # Nombre:etiqueta de la imagen resultante
 
-    secrets:
-      - github_key  # Inyecta el secreto 'github_key' definido al final del archivo (clave SSH para GitHub)
+    # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
+    env_file:
+      - ./frontend.env
 
     # Mapeo de puertos host:contenedor (puedes sobreescribir FRONTEND_PORT)
     ports:
       - "${FRONTEND_PORT:-5173}:${FRONTEND_HPORT:-5173}" # Si FRONTEND_PORT no está definido usa 5173
 
-    # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
-    env_file:
-      - ./frontend.env
-    # environment:
-    #   - APP_REPO=${APP_REPO:-git@github.com:MartinSIbarra/webapp-front.git}
-    #                                             # URL del repositorio Git de la app (por defecto apunta a un repo de ejemplo)
-    #   - MODE=${MODE:-development}               # Indica modo lógico (dev/prod)
-    #   - PORT=${FRONTEND_PORT:-5173}             # Puerto que la app escucha dentro del contenedor
-    #   - LOGSIZE=${LOGSIZE:-10M}                 # Tamaño máximo de los logs antes de rotar (usado por logrotate)
-    #   - LOGCOUNT=${LOGCOUNT:-5}                 # Número de archivos de log rotados a mantener (usado por logrotate)
-    #   - LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL:-3600} 
-    #                                             # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
-    #   - API_URL=${API_URL:-http://backend:8000} # URL base de la API (por defecto apunta a 'backend')
+    # Se declaran los secretos que el contenedor puede usar (definidos al final del archivo) 
+    secrets:
+      - github_key  # Inyecta el secreto 'github_key' definido al final del archivo (clave SSH para GitHub)
 
     # Volúmenes: en desarrollo montamos el código para hot-reload
     volumes:
@@ -40,7 +31,6 @@ services:
     # Redes a las que se conecta este servicio
     networks:
       - appnet
-
 
 # Definición de redes personalizadas usadas por los servicios
 networks:
@@ -51,12 +41,3 @@ secrets:
   github_key:
     # Ruta al archivo que contiene la clave SSH para GitHub (ajusta según tu entorno)
     file: ${SSH_KEY_PATH:-$HOME/.ssh/id_ed25519}  
-
-# Notas adicionales:
-# - ${VAR:-default} -> usa 'default' si VAR está unset o vacío.
-# - Para acceso completo de lectura/escritura sobre volúmenes bind-mounted en Linux,
-#   conviene exportar UID/GID del usuario host antes de construir/levantar: `export UID=$(id -u) GID=$(id -g)`.
-# - 'depends_on' controla orden de arranque, pero no espera checks de salud. Para esperar salud,
-#   añade 'healthcheck' al servicio backend y lógica de espera en frontend.
-# - En producción es recomendable eliminar el volumen './frontend:/app' y construir
-#   la app dentro de la imagen para reproducibilidad y rendimiento.

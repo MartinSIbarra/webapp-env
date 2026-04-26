@@ -5,7 +5,6 @@ set -e
 eval $(ssh-agent -s)
 ssh-add /run/secrets/github_key
 APP_REPO=${1:-$APP_REPO}  
-REPO_NAME=$(basename "$APP_REPO" .git)
 APP_PATH=${2:-"$APP_PATH"}
 
 # Verificar si el directorio de la app existe
