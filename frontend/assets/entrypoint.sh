@@ -19,17 +19,22 @@ if [ -z "$PORT" ]; then
 	PORT=5173
 fi
 
-export APP_REPO                               # URL del repositorio Git de la app, usado por updateapp.sh para clonar o actualizar el código
-export PORT                     	          # Puerto en el que Vite/Bun servirá la app (por defecto 5173)
-export MODE                                   # Indica modo lógico (dev/prod)
-export USERNAME                               # Usuario no-root para ejecutar la app y gestionar archivos
-export GROUPNAME                              # Grupo para el usuario no-root
+tee env_file.env <<EOF
+export APP_REPO=${APP_REPO}                   # URL del repositorio Git de la app, usado por updateapp.sh para clonar o actualizar el código
+export PORT=${PORT}                     	   # Puerto en el que Vite/Bun servirá la app (por defecto 5173)
+export MODE=${MODE}                           # Indica modo lógico (dev/prod)
+export USERNAME=${USERNAME}                   # Usuario no-root para ejecutar la app y gestionar archivos
+export GROUPNAME=${GROUPNAME}                 # Grupo para el usuario no-root
 export REPO_NAME=$(basename "$APP_REPO" .git) # Nombre del repositorio sin la extensión .git, usado para nombrar carpetas y logs
-export APP_PATH="$HOME/app/$REPO_NAME"        # Ruta donde se clonará o actualizará la app dentro del contenedor
+export APP_PATH="$HOME/app/$(basename "$APP_REPO" .git)"
+									          # Ruta donde se clonará o actualizará la app dentro del contenedor
 export LOGSIZE=${LOGSIZE:-10M}                # Tamaño máximo de los logs antes de rotar (usado por logrotate)
 export LOGCOUNT=${LOGCOUNT:-5}                # Número de archivos de log a mantener (usado por logrotate)
-export LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL:-60} 
-											  # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
+export LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL:-60} 											  
+                                       # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
+EOF
+
+source env_file.env
 
 # Crea el archivo .bashrc a partir del template, reemplazando las variables de entorno.
 envsubst < /usr/local/templates/bashrc.template | tee $HOME/.bashrc > /dev/null

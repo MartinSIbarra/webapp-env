@@ -1,11 +1,13 @@
 #!/bin/bash
-set -e
+set -e # Salir si ocurre algun error.
+
+source $HOME/env_file.env # Carga variables de entorno definidas en entrypoint.sh
 
 # Iniciar el agente SSH y cargar la llave desde el secret de Docker
 eval $(ssh-agent -s)
 ssh-add /run/secrets/github_key
-APP_REPO=${1:-$APP_REPO}  
-APP_PATH=${2:-"$APP_PATH"}
+APP_REPO=${1:-$APP_REPO}
+APP_PATH=${2:-$APP_PATH}
 
 # Verificar si el directorio de la app existe
 if [ ! -d "$APP_PATH" ]; then
@@ -31,5 +33,3 @@ else
         echo "El repositorio ya está actualizado."
     fi
 fi
-
-export APP_PATH
