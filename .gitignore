@@ -1,17 +1,18 @@
 .continue/
 
-# Ignore everything in the app/ folder except three specific Readme.md files
+# Ignora todo en la carpeta app/ excepto tres archivos Readme.md específicos
 /app/**
 
-# Keep the directories so Git can see the allowed files
+# Conserva los directorios para que Git pueda ver los archivos permitidos
 !/app/backend/
 !/app/db/
 !/app/frontend/
 
-# Allow these specific files
+# Permite archivos específicos dentro de esos directorios
 !/app/backend/Readme.md
 !/app/db/Readme.md
 !/app/frontend/Readme.md
 
-
+# Ignora archivos de entorno en la raíz del proyecto
 /*.env
+/.*.env
