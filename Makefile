@@ -16,13 +16,8 @@ help:
 ps:
 	docker compose ps
 
-# Prepara la carpeta del host para el bind-mount
-prepare:
-	mkdir -p ./frontend/app
-	chown $(HOST_UID):$(HOST_GID) ./frontend/app
-
 # Levanta los servicios en background reconstruyendo la imagen
-up: prepare
+up:
 	docker compose up --build -d
 	docker compose ps
 

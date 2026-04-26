@@ -18,13 +18,13 @@ ENV BIN_PATH="/usr/local/bin"
 ENV PATH="/home/${USERNAME}/.bun/bin:${BIN_PATH}:$PATH"
 
 # Agrega scripts al contenedor
-COPY ./scripts/entrypoint.sh \ 
-  ./scripts/updateapp.sh \
-  ./scripts/runserver.sh \
+COPY ./assets/entrypoint.sh \ 
+  ./assets/updateapp.sh \
+  ./assets/runserver.sh \
   ${BIN_PATH}/
 
 # Da permisos de ejecución a los scripts
-  RUN chmod +x \
+RUN chmod +x \
   ${BIN_PATH}/entrypoint.sh \
   ${BIN_PATH}/updateapp.sh \
   ${BIN_PATH}/runserver.sh
@@ -56,10 +56,10 @@ WORKDIR /home/${USERNAME}
 USER ${USERNAME}
 
 # Copia el archivo de configuración de bash para el usuario no-root
-COPY ./scripts/.bashrc /home/${USERNAME}/
+COPY ./assets/.bashrc /home/${USERNAME}/
 
 # Copia el template de logrotate al contenedor
-COPY ./scripts/logrotate.template ./templates/logrotate
+COPY ./assets/logrotate.template ./templates/logrotate
 
 # Exponer puerto 
 EXPOSE ${PORT}

@@ -15,30 +15,18 @@ if [ -n "$APP_REPO" ]; then
 	export USERNAME=${USERNAME:-frontend}         # Usuario no-root para ejecutar la app y gestionar archivos
 	export GROUPNAME=${GROUPNAME:-frontendgroup}  # Grupo para el usuario no-root
 
-    # Se crea el archivo de configuración de logrotate a partir del template, reemplazando las variables de entorno.
-	envsubst < $HOME/templates/logrotate | sudo tee /etc/logrotate.d/app-logs > /dev/null
-
     # Asegurar que logrotate corra cada 15 minutos
     sudo mv /etc/periodic/daily/logrotate /usr/local/bin/logrotate 2>/dev/null || true
 
-	# Asegurar que el directorio de la app tenga los permisos correctos para el usuario no-root.
-	sudo chown -R "$USERNAME:$GROUPNAME" "$HOME"
+    # Se crea el archivo de configuración de logrotate a partir del template, reemplazando las variables de entorno.
+	envsubst < $HOME/templates/logrotate | tee $HOME/logrotate.conf > /dev/null
+	
+	# Se crea el archivo de estado para logrotate si no existe
+	touch $HOME/logrotate.status
 
 	# Preparar el entorno SSH
 	mkdir -p ~/.ssh
 	ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-	#Crear el archivo de crontab para USERNAME manualmente
-	sudo sh -c "echo '* * * * * /usr/local/bin/logrotate' > /var/spool/cron/crontabs/$USERNAME"
-
-	#Corregir el dueño y permisos del archivo
-	sudo chown "$USERNAME:$GROUPNAME" /var/spool/cron/crontabs/"$USERNAME"
-	sudo chmod 600 /var/spool/cron/crontabs/"$USERNAME"
-	sudo touch /var/lib/logrotate.status
-	sudo chown "$USERNAME:$GROUPNAME" /var/lib/logrotate.status
-	
-    # Inicia el servicio de logrotate en modo demonio para gestionar los logs de la aplicación.
-    crond -b -L /dev/stdout -L /dev/stderr
 
 	# Actualiza o clona la app desde el repositorio Git usando SSH.
 	source updateapp.sh "$APP_REPO" "$APP_PATH"

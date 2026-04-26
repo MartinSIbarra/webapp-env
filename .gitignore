@@ -1,2 +1,14 @@
-frontend/app
 .continue/
+
+# Ignore everything in the app/ folder except three specific Readme.md files
+/app/**
+
+# Keep the directories so Git can see the allowed files
+!/app/backend/
+!/app/db/
+!/app/frontend/
+
+# Allow these specific files
+!/app/backend/Readme.md
+!/app/db/Readme.md
+!/app/frontend/Readme.md

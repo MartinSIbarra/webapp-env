@@ -11,7 +11,7 @@ services:
         USER_GID: ${GID:-1000}                 # Hace coincidir el GID del contenedor con el grupo del host para el bind mount
         USERNAME: ${USERNAME:-frontend}        # Usuario no-root para ejecutar la app dentro del contenedor
         GROUPNAME: ${GROUPNAME:-frontendgroup} # Grupo para el usuario no-root dentro
-    image: frontend:latest  # Nombre:etiqueta de la imagen resultante
+    image: frontend:latest                     # Nombre:etiqueta de la imagen resultante
 
     secrets:
       - github_key  # Inyecta el secreto 'github_key' definido al final del archivo (clave SSH para GitHub)
@@ -34,7 +34,7 @@ services:
 
     # Volúmenes: en desarrollo montamos el código para hot-reload
     volumes:
-      - ./frontend/app:/home/frontend/app      # Monta la carpeta local en /frontend del contenedor (edita localmente)
+      - ./app:/home/frontend/app      # Monta la carpeta local en /frontend del contenedor (edita localmente)
     #   - /app/node_modules    # Volumen anónimo para evitar sobrescribir node_modules del contenedor
 
     # Redes a las que se conecta este servicio
