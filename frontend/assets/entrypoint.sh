@@ -21,7 +21,7 @@ fi
 
 tee env_file.env <<EOF
 export APP_REPO=${APP_REPO}                   # URL del repositorio Git de la app, usado por updateapp.sh para clonar o actualizar el código
-export PORT=${PORT}                     	   # Puerto en el que Vite/Bun servirá la app (por defecto 5173)
+export PORT=${PORT}                     	  # Puerto en el que Vite/Bun servirá la app (por defecto 5173)
 export MODE=${MODE}                           # Indica modo lógico (dev/prod)
 export USERNAME=${USERNAME}                   # Usuario no-root para ejecutar la app y gestionar archivos
 export GROUPNAME=${GROUPNAME}                 # Grupo para el usuario no-root
