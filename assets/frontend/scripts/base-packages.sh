@@ -2,6 +2,8 @@
 
 set -e
 
+apk add --no-cache libstdc++ libc6-compat
+
 # Instalar Bun (script oficial)
 curl -fsSL https://bun.sh/install | bash
 

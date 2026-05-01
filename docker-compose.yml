@@ -19,7 +19,7 @@ services:
 
     # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
     environment:
-      - APP_REPO=${APP_REPO}               # URL del repositorio Git de la app (definido en .env o con valor por defecto)
+      - APP_REPO=${FRONTEND_APP_REPO}      # URL del repositorio Git de la app (definido en .env o con valor por defecto)
       - MODE=${MODE}                       # Modo lógico (development/production) para controlar el comportamiento del entrypoint
       - PORT=${FRONTEND_PORT}              # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
       - TZ=${TZ}                           # Zona horaria para logrotate y otros procesos que dependan de la hora
@@ -65,7 +65,7 @@ services:
 
     # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
     environment:
-      - APP_REPO=${APP_REPO}               # URL del repositorio Git de la app (definido en .env o con valor por defecto)
+      - APP_REPO=${BACKEND_APP_REPO}       # URL del repositorio Git de la app (definido en .env o con valor por defecto)
       - MODE=${MODE}                       # Modo lógico (development/production) para controlar el comportamiento del entrypoint
       - PORT=${BACKEND_PORT}               # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
       - TZ=${TZ}                           # Zona horaria para logrotate y otros procesos que dependan de la hora
@@ -75,7 +75,6 @@ services:
                                            # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
       - USERNAME=${BACKEND_USERNAME}       # Usuario no-root para ejecutar la app dentro del contenedor (definido en .env o con valor por defecto)
       - GROUPNAME=${BACKEND_GROUPNAME}     # Grupo para el usuario no-root dentro del contenedor (definido en .env o con valor por defecto)
-      - JAVA_HOME=${JAVA_HOME}             # Ruta de JAVA_HOME para que esté disponible dentro del contenedor (definida en .env o con valor por defecto)
 
     # Mapeo de puertos host:contenedor para exponer la app al exterior
     ports:

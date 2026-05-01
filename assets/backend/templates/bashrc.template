@@ -6,4 +6,5 @@ alias l='ls -l'
 export PS1="\\u@\\h:\\w\\$ "
 
 # Variables de entorno para java
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
 export PATH="${JAVA_HOME}/bin:$PATH"

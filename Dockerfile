@@ -37,7 +37,7 @@ COPY ${ASSETS_PATH}/templates/ ${TEMPLATES_PATH}/
 
 # Dependencias del sistema necesarias para el funcionamiento de la app, los scripts y logrotate.
 RUN apk add --no-cache \
-  sudo bash curl ca-certificates git openssh logrotate gettext tzdata
+  sudo bash curl ca-certificates git openssh logrotate gettext tzdata zlib xz
 
 # Cambia el shell por defecto a bash para que los scripts funcionen correctamente
 SHELL ["/bin/bash", "-lc"]
