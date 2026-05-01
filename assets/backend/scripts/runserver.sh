@@ -29,17 +29,11 @@ if [ "$MODE" = "production" ]; then
   fi
 
   # Arranca el servidor de producción de Spring Boot, exponiendo el puerto adecuado.
-  java -jar "$JAR_FILE" \ 
-    --server.port=$PORT \
-    --spring.profiles.active=prod \
-    > server.log 2>&1 &
+  java -jar "$JAR_FILE" --server.port=$PORT --spring.profiles.active=prod > server.log 2>&1 &
 
 else # $MODE = "development"
   echo "[runserver] development mode: installing deps and starting dev server"
 
   # Arranca el servidor de desarrollo de Spring Boot, exponiendo el puerto adecuado.
-  ./gradlew clean bootRun \
-    --refresh-dependencies \
-    --args="--server.port=$PORT" \
-    > server.log 2>&1 &
+  ./gradlew clean bootRun --refresh-dependencies --args="--server.port=$PORT" > server.log 2>&1 &
 fi
