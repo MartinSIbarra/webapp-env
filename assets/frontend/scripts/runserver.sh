@@ -14,7 +14,7 @@ cd "$APP_PATH"  # Cambia al directorio de la app (definido en updateapp.sh)
 
 if [ "$MODE" = "production" ]; then
   # Mensaje informativo al log del contenedor
-  echo "[entrypoint] production mode: installing deps, building and previewing"
+  echo "[runserver] production mode: installing deps, building and previewing"
 
   # Instala solo dependencias necesarias para producción.
   bun install --production    # intenta evitar instalar devDependencies.
@@ -27,7 +27,7 @@ if [ "$MODE" = "production" ]; then
   # desde fuera del contenedor (necesario para acceder desde el host). `--port` usa `PORT`.
   exec bun x serve dist -p "$PORT" 2>&1 | tee -a "$APP_PATH/server.log"
 else # $MODE = "development"
-  echo "[entrypoint] development mode: installing deps and starting dev server"
+  echo "[runserver] development mode: installing deps and starting dev server"
 
   # Instala todas las dependencias (incluye devDependencies) para permitir hot-reload
   # y otras herramientas de desarrollo dentro del contenedor.
