@@ -38,7 +38,7 @@ frontend:
 # Elimina la imagen 'frontend:latest' construida localmente (no hace prune)
 rmi:
 	docker image rm frontend:latest || true
-	# docker image rm backend:latest || true
+	docker image rm backend:latest || true
 
 # Elimina la carpeta de la aplicación frontend (útil para limpiar el entorno)
 delapp:

@@ -2,8 +2,6 @@
 
 set -e # Salir si ocurre algun error.
 
-source $HOME/env_file.env # Carga variables de entorno definidas en entrypoint.sh
-
 # Usa Bun para instalar dependencias, construir o arrancar el servidor
 # Se puede parametrizar desde Docker/Compose exportando la variable `PORT`.
 

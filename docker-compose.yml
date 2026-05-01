@@ -6,9 +6,9 @@ services:
     build:
       context: .                           # Carpeta que contiene Dockerfile y código fuente
       args:
-        COMMON_ASSETS_PATH: "$COMMON_ASSETS_PATH"
+        COMMON_ASSETS_PATH: "${COMMON_ASSETS_PATH}"
                                            # Argumento de construcción para la ruta de los assets comunes, sera usado en el Dockerfile para copiar los scripts necesarios
-        ASSETS_PATH: "$FRONTEND_ASSETS_PATH"   
+        ASSETS_PATH: "${FRONTEND_ASSETS_PATH}"   
                                            # Argumento de construcción para la ruta de los assets particulares, sera usado en el Dockerfile para copiar los scripts necesarios
         USER_UID: "${FRONTEND_UID}"        # UID del usuario no-root dentro del contenedor, se asigna al mismo UID del host para evitar problemas de permisos con los bind mounts
         USER_GID: "${FRONTEND_GID}"        # GID del grupo no-root dentro del contenedor, se asigna al mismo GID del host para evitar problemas de permisos con los bind mounts
@@ -52,9 +52,9 @@ services:
     build:
       context: .                           # Carpeta que contiene Dockerfile y código fuente
       args:
-        COMMON_ASSETS_PATH: "$COMMON_ASSETS_PATH"
+        COMMON_ASSETS_PATH: "${COMMON_ASSETS_PATH}"
                                            # Argumento de construcción para la ruta de los assets comunes, sera usado en el Dockerfile para copiar los scripts necesarios
-        ASSETS_PATH: "$BACKEND_ASSETS_PATH"   
+        ASSETS_PATH: "${BACKEND_ASSETS_PATH}"   
                                            # Argumento de construcción para la ruta de los assets particulares, sera usado en el Dockerfile para copiar los scripts necesarios
         USER_UID: "${BACKEND_UID}"         # UID del usuario no-root dentro del contenedor, se asigna al mismo UID del host para evitar problemas de permisos con los bind mounts
         USER_GID: "${BACKEND_GID}"         # GID del grupo no-root dentro del contenedor, se asigna al mismo GID del host para evitar problemas de permisos con los bind mounts

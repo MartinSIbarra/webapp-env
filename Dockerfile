@@ -1,7 +1,8 @@
 FROM alpine:latest
 
-# Declaración de argumentos de construcción con valores por defecto, que pueden ser sobreescritos al construir la imagen o a través de variables de entorno en docker-compose.
-# Carpeta de assets (scripts, templates, etc) que se copiarán al contenedor, definida como argumento para flexibilidad
+# Carpetas de assets comunes 
+ARG COMMON_ASSETS_PATH=${COMMON_ASSETS_PATH}
+# Carpetas de assets particulares 
 ARG ASSETS_PATH=${ASSETS_PATH}
 
 # Valores para usuario y grupo no-root
@@ -25,7 +26,7 @@ RUN mkdir -p ${BIN_PATH}
 # Agrega scripts comunes al contenedor
 COPY ${COMMON_ASSETS_PATH}/scripts/ ${BIN_PATH}/
 # Agrega scripts particulares al contenedor
-COPY ${ASSETS_PATH}/ ${BIN_PATH}/
+COPY ${ASSETS_PATH}/scripts/ ${BIN_PATH}/
 # Da permisos de ejecución a los scripts
 RUN chmod +x ${BIN_PATH}/*
 

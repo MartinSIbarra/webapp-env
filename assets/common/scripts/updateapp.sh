@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e # Salir si ocurre algun error.
 
-source $HOME/env_file.env # Carga variables de entorno definidas en entrypoint.sh
-
 # Iniciar el agente SSH y cargar la llave desde el secret de Docker
 eval $(ssh-agent -s)
 ssh-add /run/secrets/github_key
