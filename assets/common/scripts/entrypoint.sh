@@ -8,7 +8,10 @@ envsubst < /usr/local/templates/bashrc.template | tee $HOME/.bashrc > /dev/null
 
 # Preparar el entorno SSH
 mkdir -p ~/.ssh
-ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+if ! grep -q "github.com" ~/.ssh/known_hosts 2>/dev/null; then
+    ssh-keyscan github.com >> ~/.ssh/known_hosts
+fi
 
 if [ -z "$APP_REPO" ]; then
 	echo "No se ha proporcionado APP_REPO. El contenedor se mantendrá inactivo. Proporcione la URL del repositorio Git de la app a través de la variable de entorno APP_REPO para que el contenedor clone o actualice el código y ejecute la aplicación."
