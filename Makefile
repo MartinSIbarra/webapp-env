@@ -1,16 +1,12 @@
 SHELL := /bin/bash
 
-# Makefile para gestionar el entorno docker-compose
-HOST_UID ?= $(shell id -u)
-HOST_GID ?= $(shell id -g)
-
-.PHONY: up down it rmi ps prepare help delapp
+.PHONY: up down frontend backend rmi ps prepare help delapp
 
 .ONESHELL:
 
 # Muestra ayuda rápida
 help:
-	@echo "Targets: help up prepare down ps it rmi delapp"
+	@echo "Targets: help up prepare down ps frontend backend rmi delapp"
 
 # Muestra el estado de los servicios
 ps:
@@ -31,13 +27,18 @@ restart: down rmi up
 # Recarga el servidor
 reload: down up
 
-# Abre una shell interactiva en el servicio frontend (usa /bin/bash si está disponible)
-it:
+# Abre una shell interactiva en el servicio backend (usa /bin/bash si está disponible)
+backend:
 	@docker compose exec backend bash || docker compose exec backend sh
+
+# Abre una shell interactiva en el servicio frontend (usa /bin/bash si está disponible)
+frontend:
+	@docker compose exec frontend bash || docker compose exec frontend sh
 
 # Elimina la imagen 'frontend:latest' construida localmente (no hace prune)
 rmi:
 	docker image rm frontend:latest || true
+	# docker image rm backend:latest || true
 
 # Elimina la carpeta de la aplicación frontend (útil para limpiar el entorno)
 delapp:

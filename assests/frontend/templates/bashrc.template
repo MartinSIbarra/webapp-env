@@ -1,0 +1,9 @@
+# aliases
+alias a='ls -la'
+alias l='ls -l'
+
+# Prompt personalizado para el usuario no-root
+export PS1="\\u@\\h:\\w\\$ "
+
+# Variables de entorno
+export PATH="/home/${USERNAME}/.bun/bin:${BIN_PATH}:$PATH"

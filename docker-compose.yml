@@ -1,32 +1,81 @@
 # Lista de servicios (cada uno se ejecuta como contenedor separado)
 services:
-  # Servicio backend: API y lógica del servidor
-  backend:
-    # Construcción de la imagen a partir del contexto local './backend'
+  # Servicio frontend
+  frontend:
+    # Construcción de la imagen a partir del contexto local './frontend'
     build:
-      context: .                          # Carpeta que contiene Dockerfile y código fuente
+      context: .                           # Carpeta que contiene Dockerfile y código fuente
       args:
-        ASSETS_PATH: "./backend/assets"   # Argumento de construcción para la ruta de los assets sera usado en el Dockerfile para copiar los scripts necesarios
-        USER_UID: "${BACKEND_UID}"        # UID del usuario no-root dentro del contenedor, se asigna al mismo UID del host para evitar problemas de permisos con los bind mounts
-        USER_GID: "${BACKEND_GID}"        # GID del grupo no-root dentro del contenedor, se asigna al mismo GID del host para evitar problemas de permisos con los bind mounts
-        USERNAME: "${BACKEND_USERNAME}"   # Usuario no-root para ejecutar la app dentro del contenedor
-        GROUPNAME: "${BACKEND_GROUPNAME}" # Grupo para el usuario no-root dentro
-        PORT: "${BACKEND_PORT}"           # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
-    image: backend:latest                 # Nombre:etiqueta de la imagen resultante
+        COMMON_ASSETS_PATH: "$COMMON_ASSETS_PATH"
+                                           # Argumento de construcción para la ruta de los assets comunes, sera usado en el Dockerfile para copiar los scripts necesarios
+        ASSETS_PATH: "$FRONTEND_ASSETS_PATH"   
+                                           # Argumento de construcción para la ruta de los assets particulares, sera usado en el Dockerfile para copiar los scripts necesarios
+        USER_UID: "${FRONTEND_UID}"        # UID del usuario no-root dentro del contenedor, se asigna al mismo UID del host para evitar problemas de permisos con los bind mounts
+        USER_GID: "${FRONTEND_GID}"        # GID del grupo no-root dentro del contenedor, se asigna al mismo GID del host para evitar problemas de permisos con los bind mounts
+        USERNAME: "${FRONTEND_USERNAME}"   # Usuario no-root para ejecutar la app dentro del contenedor
+        GROUPNAME: "${FRONTEND_GROUPNAME}" # Grupo para el usuario no-root dentro del contenedor
+        PORT: "${FRONTEND_PORT}"           # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
+    image: ${FRONTEND_IMAGE_NAME}          # Nombre:etiqueta de la imagen resultante
 
     # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
     environment:
-      - APP_REPO=${APP_REPO}              # URL del repositorio Git de la app (definido en .env o con valor por defecto)
-      - MODE=${MODE}                      # Modo lógico (development/production) para controlar el comportamiento del entrypoint
-      - PORT=${BACKEND_PORT}              # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
-      - TZ=${TZ}                          # Zona horaria para logrotate y otros procesos que dependan de la hora
-      - LOGSIZE=${LOGSIZE}                # Tamaño máximo de los logs antes de rotar (usado por logrotate)
-      - LOGCOUNT=${LOGCOUNT}              # Número de archivos de log rotados a mantener (usado por logrotate)
+      - APP_REPO=${APP_REPO}               # URL del repositorio Git de la app (definido en .env o con valor por defecto)
+      - MODE=${MODE}                       # Modo lógico (development/production) para controlar el comportamiento del entrypoint
+      - PORT=${FRONTEND_PORT}              # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
+      - TZ=${TZ}                           # Zona horaria para logrotate y otros procesos que dependan de la hora
+      - LOGSIZE=${LOGSIZE}                 # Tamaño máximo de los logs antes de rotar (usado por logrotate)
+      - LOGCOUNT=${LOGCOUNT}               # Número de archivos de log rotados a mantener (usado por logrotate)
       - LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL}  
-                                          # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
-      - USERNAME=${BACKEND_USERNAME}      # Usuario no-root para ejecutar la app dentro del contenedor (definido en .env o con valor por defecto)
-      - GROUPNAME=${BACKEND_GROUPNAME}    # Grupo para el usuario no-root dentro
-      - JAVA_HOME=${JAVA_HOME}            # Ruta de JAVA_HOME para que esté disponible dentro del contenedor (definida en .env o con valor por defecto)
+                                           # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
+      - USERNAME=${FRONTEND_USERNAME}      # Usuario no-root para ejecutar la app dentro del contenedor (definido en .env o con valor por defecto)
+      - GROUPNAME=${FRONTEND_GROUPNAME}    # Grupo para el usuario no-root dentro del contenedor (definido en .env o con valor por defecto)
+      - JAVA_HOME=${JAVA_HOME}             # Ruta de JAVA_HOME para que esté disponible dentro del contenedor (definida en .env o con valor por defecto)
+
+    # Mapeo de puertos host:contenedor para exponer la app al exterior
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}" 
+
+    # Se declaran los secretos que el contenedor puede usar (definidos al final del archivo) 
+    secrets:
+      - github_key  # Inyecta el secreto 'github_key' definido al final del archivo (clave SSH para GitHub)
+
+    # Volúmenes: en desarrollo montamos el código para hot-reload
+    volumes:
+      - ./app/frontend:/home/frontend/app  # Monta la carpeta local en el home del usuario dentro del contenedor
+
+    # Redes a las que se conecta este servicio
+    networks:
+      - appnet
+
+  backend:
+    # Construcción de la imagen a partir del contexto local './backend'
+    build:
+      context: .                           # Carpeta que contiene Dockerfile y código fuente
+      args:
+        COMMON_ASSETS_PATH: "$COMMON_ASSETS_PATH"
+                                           # Argumento de construcción para la ruta de los assets comunes, sera usado en el Dockerfile para copiar los scripts necesarios
+        ASSETS_PATH: "$BACKEND_ASSETS_PATH"   
+                                           # Argumento de construcción para la ruta de los assets particulares, sera usado en el Dockerfile para copiar los scripts necesarios
+        USER_UID: "${BACKEND_UID}"         # UID del usuario no-root dentro del contenedor, se asigna al mismo UID del host para evitar problemas de permisos con los bind mounts
+        USER_GID: "${BACKEND_GID}"         # GID del grupo no-root dentro del contenedor, se asigna al mismo GID del host para evitar problemas de permisos con los bind mounts
+        USERNAME: "${BACKEND_USERNAME}"    # Usuario no-root para ejecutar la app dentro del contenedor
+        GROUPNAME: "${BACKEND_GROUPNAME}"  # Grupo para el usuario no-root dentro del contenedor
+        PORT: "${BACKEND_PORT}"            # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
+    image: ${BACKEND_IMAGE_NAME}           # Nombre:etiqueta de la imagen resultante
+
+    # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
+    environment:
+      - APP_REPO=${APP_REPO}               # URL del repositorio Git de la app (definido en .env o con valor por defecto)
+      - MODE=${MODE}                       # Modo lógico (development/production) para controlar el comportamiento del entrypoint
+      - PORT=${BACKEND_PORT}               # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
+      - TZ=${TZ}                           # Zona horaria para logrotate y otros procesos que dependan de la hora
+      - LOGSIZE=${LOGSIZE}                 # Tamaño máximo de los logs antes de rotar (usado por logrotate)
+      - LOGCOUNT=${LOGCOUNT}               # Número de archivos de log rotados a mantener (usado por logrotate)
+      - LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL}  
+                                           # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
+      - USERNAME=${BACKEND_USERNAME}       # Usuario no-root para ejecutar la app dentro del contenedor (definido en .env o con valor por defecto)
+      - GROUPNAME=${BACKEND_GROUPNAME}     # Grupo para el usuario no-root dentro del contenedor (definido en .env o con valor por defecto)
+      - JAVA_HOME=${JAVA_HOME}             # Ruta de JAVA_HOME para que esté disponible dentro del contenedor (definida en .env o con valor por defecto)
 
     # Mapeo de puertos host:contenedor para exponer la app al exterior
     ports:
@@ -38,7 +87,7 @@ services:
 
     # Volúmenes: en desarrollo montamos el código para hot-reload
     volumes:
-      - ./app/backend:/home/backend/app           # Monta la carpeta local en el home del usuario dentro del contenedor
+      - ./app/backend:/home/backend/app    # Monta la carpeta local en el home del usuario dentro del contenedor
 
     # Redes a las que se conecta este servicio
     networks:
@@ -52,4 +101,4 @@ networks:
 secrets:
   github_key:
     # Ruta al archivo que contiene la clave SSH para GitHub (ajusta según tu entorno)
-    file: ${SSH_KEY_PATH:-$HOME/.ssh/id_ed25519}  
+    file: ${SSH_KEY_PATH}
