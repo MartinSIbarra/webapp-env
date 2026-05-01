@@ -1,0 +1,6 @@
+# aliases
+alias a='ls -la'
+alias l='ls -l'
+
+# Variables de entorno para java
+export PATH="${JAVA_HOME}/bin:$PATH"

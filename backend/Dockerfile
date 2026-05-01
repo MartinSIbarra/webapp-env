@@ -6,7 +6,7 @@ FROM alpine:latest
 ARG MODE=${MODE:-development} 
 
 # Puerto que la app escucha dentro del contenedor.
-ARG PORT=${PORT:-5173}
+ARG PORT=${PORT:-5000}
 
 # Valores para usuario y grupo no-root
 ARG USER_UID=${USER_UID:-1000}
@@ -47,25 +47,23 @@ COPY \
 ENV USERNAME="${USERNAME}"
 ENV GROUPNAME="${GROUPNAME}"
 ENV LOGROTATE_INTERVAL="${LOGROTATE_INTERVAL}"
-ENV PATH="/home/${USERNAME}/.bun/bin:${BIN_PATH}:$PATH"
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+ENV PATH="${BIN_PATH}:${JAVA_HOME}/bin:$PATH"
+# Prompt personalizado para el usuario no-root
+ENV PS1="\\u@\\h:\\w\\$ "
 
-# Dependencias del sistema necesarias para el instalador de Bun y Vite
+# Dependencias del sistema necesarias para el funcionamiento de la app, los scripts y logrotate.
 RUN apk add --no-cache \
-  sudo bash curl ca-certificates git openssh logrotate gettext tzdata xz libstdc++ zlib libc6-compat 
+  sudo bash curl ca-certificates git openssh logrotate gettext tzdata openjdk21
 
 # Cambia el shell por defecto a bash para que los scripts funcionen correctamente
 SHELL ["/bin/bash", "-lc"]
 
-# Instalar Bun (script oficial)
-RUN set -ex \
-  && curl -fsSL https://bun.sh/install | bash
-
-# Create non-root user and move bun installation to their home so it's usable
+# Create non-root user and group, and set permissions for the home directory
 RUN set -ex \
   && addgroup -g "${USER_GID}" "${GROUPNAME}" \
   && adduser -D -u "${USER_UID}" -G "${GROUPNAME}" -h "/home/${USERNAME}" -s "/bin/bash" "${USERNAME}" \
   && mkdir -p "/home/${USERNAME}/" \
-  && mv /root/.bun "/home/${USERNAME}" \
   && chown -R "${USERNAME}:${GROUPNAME}" /home/${USERNAME} \
   && echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 

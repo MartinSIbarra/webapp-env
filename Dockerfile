@@ -1,12 +1,8 @@
 FROM alpine:latest
 
-# Argumentos para configurar el usuario no-root que se usará en el contenedor.
-
-# Puede ser 'development' o 'production', y controla el comportamiento del entrypoint.
-ARG MODE=${MODE:-development} 
-
-# Puerto que la app escucha dentro del contenedor.
-ARG PORT=${PORT:-5173}
+# Declaración de argumentos de construcción con valores por defecto, que pueden ser sobreescritos al construir la imagen o a través de variables de entorno en docker-compose.
+# Carpeta de assets (scripts, templates, etc) que se copiarán al contenedor, definida como argumento para flexibilidad
+ARG ASSETS_PATH=${ASSETS_PATH}
 
 # Valores para usuario y grupo no-root
 ARG USER_UID=${USER_UID:-1000}
@@ -14,8 +10,7 @@ ARG USER_GID=${USER_GID:-1000}
 ARG USERNAME=${USERNAME:-norootuser}
 ARG GROUPNAME=${GROUPNAME:-norootusergroup}
 
-# Cantidad de segundos entre cada ejecución de logrotate
-ARG LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL:-60}
+ARG PORT=${PORT:-3000} # Puerto que la app escucha dentro del contenedor, definido como argumento para flexibilidad
 
 # Path de ejecutables con acceso global dentro del contenedor
 ARG BIN_PATH="/usr/local/bin"
@@ -24,14 +19,16 @@ ARG BIN_PATH="/usr/local/bin"
 RUN mkdir -p ${BIN_PATH}
 
 # Agrega scripts al contenedor
-COPY ./assets/entrypoint.sh \ 
-  ./assets/updateapp.sh \
-  ./assets/runserver.sh \
-  ./assets/logrotate-schedule.sh \
+COPY ${ASSETS_PATH}/base-packages.sh \
+  ${ASSETS_PATH}/entrypoint.sh \
+  ${ASSETS_PATH}/updateapp.sh \
+  ${ASSETS_PATH}/runserver.sh \
+  ${ASSETS_PATH}/logrotate-schedule.sh \
   ${BIN_PATH}/
 
 # Da permisos de ejecución a los scripts
 RUN chmod +x \
+  ${BIN_PATH}/base-packages.sh \
   ${BIN_PATH}/entrypoint.sh \
   ${BIN_PATH}/updateapp.sh \
   ${BIN_PATH}/runserver.sh \
@@ -39,35 +36,29 @@ RUN chmod +x \
 
 # Copia los archivos de configuracion y templates al contenedor
 COPY \
-  ./assets/bashrc.template \
-  ./assets/logrotate.template \
+  ${ASSETS_PATH}/bashrc.template \
+  ${ASSETS_PATH}/logrotate.template \
   /usr/local/templates/
 
-# Se pasan los argumentos como variables de entorno para que estén disponibles en tiempo de ejecución, especialmente para el entrypoint y los scripts.
-ENV USERNAME="${USERNAME}"
-ENV GROUPNAME="${GROUPNAME}"
-ENV LOGROTATE_INTERVAL="${LOGROTATE_INTERVAL}"
-ENV PATH="/home/${USERNAME}/.bun/bin:${BIN_PATH}:$PATH"
+# Prompt personalizado para el usuario no-root
+ENV PS1="\\u@\\h:\\w\\$ "
 
-# Dependencias del sistema necesarias para el instalador de Bun y Vite
+# Dependencias del sistema necesarias para el funcionamiento de la app, los scripts y logrotate.
 RUN apk add --no-cache \
-  sudo bash curl ca-certificates git openssh logrotate gettext tzdata xz libstdc++ zlib libc6-compat 
+  sudo bash curl ca-certificates git openssh logrotate gettext tzdata
 
 # Cambia el shell por defecto a bash para que los scripts funcionen correctamente
 SHELL ["/bin/bash", "-lc"]
 
-# Instalar Bun (script oficial)
-RUN set -ex \
-  && curl -fsSL https://bun.sh/install | bash
-
-# Create non-root user and move bun installation to their home so it's usable
+# Create non-root user and group, and set permissions for the home directory
 RUN set -ex \
   && addgroup -g "${USER_GID}" "${GROUPNAME}" \
   && adduser -D -u "${USER_UID}" -G "${GROUPNAME}" -h "/home/${USERNAME}" -s "/bin/bash" "${USERNAME}" \
   && mkdir -p "/home/${USERNAME}/" \
-  && mv /root/.bun "/home/${USERNAME}" \
   && chown -R "${USERNAME}:${GROUPNAME}" /home/${USERNAME} \
   && echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN ${BIN_PATH}/base-packages.sh
 
 # Cambia al directorio de trabajo del usuario no-root
 WORKDIR "/home/${USERNAME}"
