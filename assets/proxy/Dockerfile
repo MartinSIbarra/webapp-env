@@ -1,7 +1,5 @@
 FROM alpine:latest
 
-# Carpetas de assets comunes 
-ARG COMMON_ASSETS_PATH="."
 # Carpetas de assets particulares 
 ARG ASSETS_PATH="."
 
@@ -20,18 +18,14 @@ ARG BIN_PATH="/usr/local/bin"
 # Path para templates y archivos de configuración dentro del contenedor
 ARG TEMPLATES_PATH="/usr/local/templates/"
 
-# Crea el directorio para los scripts personalizados si no existe
-RUN mkdir -p ${BIN_PATH}
+# Crea el directorio para los scripts y templates personalizados si no existen
+RUN mkdir -p ${BIN_PATH} ${TEMPLATES_PATH}
 
-# Agrega scripts comunes al contenedor
-COPY ${COMMON_ASSETS_PATH}/scripts/ ${BIN_PATH}/
 # Agrega scripts particulares al contenedor
 COPY ${ASSETS_PATH}/scripts/ ${BIN_PATH}/
 # Da permisos de ejecución a los scripts
 RUN chmod +x ${BIN_PATH}/*
 
-# Copia los archivos comunes de configuracion y templates al contenedor
-COPY ${COMMON_ASSETS_PATH}/templates/ ${TEMPLATES_PATH}/
 # Copia los archivos particulares de configuracion y templates al contenedor
 COPY ${ASSETS_PATH}/templates/ ${TEMPLATES_PATH}/
 

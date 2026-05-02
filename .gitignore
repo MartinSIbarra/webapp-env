@@ -7,11 +7,13 @@
 !/app/backend/
 !/app/db/
 !/app/frontend/
+!/app/proxy/
 
 # Permite archivos específicos dentro de esos directorios
 !/app/backend/Readme.md
 !/app/db/Readme.md
 !/app/frontend/Readme.md
+!/app/proxy/Readme.md
 
 # Ignora archivos de entorno en la raíz del proyecto
 /*.env

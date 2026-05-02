@@ -1,8 +1,49 @@
 # Lista de servicios (cada uno se ejecuta como contenedor separado)
 services:
+  # Servicio proxy
+  proxy:
+    # Construcción de la imagen a partir del contexto 
+    build:
+      context: "${PROXY_CONTEXT}"          # Carpeta que contiene Dockerfile y código fuente
+      args:
+        ASSETS_PATH: "${PROXY_ASSETS_PATH}"   
+                                           # Argumento de construcción para la ruta de los assets particulares, sera usado en el Dockerfile para copiar los scripts necesarios
+        USER_UID: "${PROXY_UID}"           # UID del usuario no-root dentro del contenedor, se asigna al mismo UID del host para evitar problemas de permisos con los bind mounts
+        USER_GID: "${PROXY_GID}"           # GID del grupo no-root dentro del contenedor, se asigna al mismo GID del host para evitar problemas de permisos con los bind mounts
+        USERNAME: "${PROXY_USERNAME}"      # Usuario no-root para ejecutar la app dentro del contenedor
+        GROUPNAME: "${PROXY_GROUPNAME}"    # Grupo para el usuario no-root dentro del contenedor
+        PORT: "${PROXY_PORT}"              # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
+    image: ${PROXY_IMAGE_NAME}             # Nombre:etiqueta de la imagen resultante
+
+    # Variables de entorno inyectadas en tiempo de ejecución dentro del contenedor
+    environment:
+      - PORT=${PROXY_PORT}                 # Puerto que la app escucha dentro del contenedor (puede ser sobreescrito por env var)
+      - TZ=${TZ}                           # Zona horaria para logrotate y otros procesos que dependan de la hora
+      - LOGSIZE=${LOGSIZE}                 # Tamaño máximo de los logs antes de rotar (usado por logrotate)
+      - LOGCOUNT=${LOGCOUNT}               # Número de archivos de log rotados a mantener (usado por logrotate)
+      - LOGROTATE_INTERVAL=${LOGROTATE_INTERVAL}  
+                                           # Intervalo en segundos para ejecutar logrotate (usado por el script de scheduling)
+      - USERNAME=${PROXY_USERNAME}         # Usuario no-root para ejecutar la app dentro del contenedor (definido en .env o con valor por defecto)
+      - GROUPNAME=${PROXY_GROUPNAME}       # Grupo para el usuario no-root dentro del contenedor (definido en .env o con valor por defecto)
+
+    # Mapeo de puertos host:contenedor para exponer la app al exterior
+    ports:
+      - "${PROXY_PORT}:${PROXY_PORT}" 
+
+    # Se declaran los secretos que el contenedor puede usar (definidos al final del archivo) 
+    # secrets:
+    #   - github_key  # Inyecta el secreto 'github_key' definido al final del archivo (clave SSH para GitHub)
+
+    # # Volúmenes: en desarrollo montamos el código para hot-reload
+    volumes:
+      - ./app/proxy:/home/proxy/nginx      # Monta la carpeta local en el home del usuario dentro del contenedor
+
+    # Redes a las que se conecta este servicio
+    networks:
+      - appnet
   # Servicio frontend
   frontend:
-    # Construcción de la imagen a partir del contexto local './frontend'
+    # Construcción de la imagen a partir del contexto 
     build:
       context: "${APPS_CONTEXT}"           # Carpeta que contiene Dockerfile y código fuente
       args:
@@ -47,7 +88,7 @@ services:
       - appnet
 
   backend:
-    # Construcción de la imagen a partir del contexto local './backend'
+    # Construcción de la imagen a partir del contexto 
     build:
       context: "${APPS_CONTEXT}"           # Carpeta que contiene Dockerfile y código fuente
       args:

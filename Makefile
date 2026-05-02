@@ -1,12 +1,12 @@
 SHELL := /bin/bash
 
-.PHONY: up down frontend backend rmi ps prepare help delapp
+.PHONY: up down proxy frontend backend rmi ps help delapp
 
 .ONESHELL:
 
 # Muestra ayuda rápida
 help:
-	@echo "Targets: help up prepare down ps frontend backend rmi delapp"
+	@echo "Targets: help up down ps proxy frontend backend rmi delapp"
 
 # Muestra el estado de los servicios
 ps:
@@ -28,6 +28,10 @@ restart: down rmi up
 reload: down up
 
 # Abre una shell interactiva en el servicio backend (usa /bin/bash si está disponible)
+proxy:
+	@docker compose exec proxy bash || docker compose exec proxy sh
+
+# Abre una shell interactiva en el servicio backend (usa /bin/bash si está disponible)
 backend:
 	@docker compose exec backend bash || docker compose exec backend sh
 
@@ -37,9 +41,10 @@ frontend:
 
 # Elimina la imagen 'frontend:latest' construida localmente (no hace prune)
 rmi:
+	docker image rm proxy:latest || true
 	docker image rm frontend:latest || true
 	docker image rm backend:latest || true
 
 # Elimina la carpeta de la aplicación frontend (útil para limpiar el entorno)
 delapp:
-	rm -rf ./frontend/app
+	rm -rf ./frontend/app ./backend/app

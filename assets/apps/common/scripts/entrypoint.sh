@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Shell entrypoint para el contenedor frontend.
 
 set -e  # Salir inmediatamente si cualquier comando devuelve código diferente de 0.
