@@ -27,24 +27,24 @@ restart: down rmi up
 # Recarga el servidor
 reload: down up
 
-# Abre una shell interactiva en el servicio backend (usa /bin/bash si está disponible)
+# Abre una shell interactiva en el servicio proxy
 proxy:
 	@docker compose exec proxy bash || docker compose exec proxy sh
 
-# Abre una shell interactiva en el servicio backend (usa /bin/bash si está disponible)
+# Abre una shell interactiva en el servicio backend
 backend:
 	@docker compose exec backend bash || docker compose exec backend sh
 
-# Abre una shell interactiva en el servicio frontend (usa /bin/bash si está disponible)
+# Abre una shell interactiva en el servicio frontend
 frontend:
 	@docker compose exec frontend bash || docker compose exec frontend sh
 
-# Elimina la imagen 'frontend:latest' construida localmente (no hace prune)
+# Elimina la imagen 'frontend:latest' construida localmente
 rmi:
 	docker image rm proxy:latest || true
 	docker image rm frontend:latest || true
 	docker image rm backend:latest || true
 
-# Elimina la carpeta de la aplicación frontend (útil para limpiar el entorno)
+# Elimina la carpeta de la aplicación frontend y backend
 delapp:
 	rm -rf ./frontend/app ./backend/app
